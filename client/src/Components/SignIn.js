@@ -14,6 +14,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import ResponsiveAppBar from './ResponsiveAppBar';
 
 
@@ -37,16 +38,38 @@ export default function SignIn() {
   const navigate = useNavigate();
 
   const [loggedIn, setloggedIn] = useState(false)
+  const [email, setemail] = useState('');
+  const [password, setPass] = useState('');
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async(event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    setemail(data.get('email'))
+    setPass(data.get('password'))
     console.log({
       email: data.get('email'),
       password: data.get('password'),
     });
-    setloggedIn(true)
-    navigate('/home');
+
+    try {
+      // Make a POST request to the /save-data route on your Node.js server
+      axios.defaults.withCredentials = true
+      await axios.post('http://localhost:5000/api/auth/login', {
+        email,
+        password,
+        withCredentials: true,
+
+      });
+        localStorage.setItem('isLogged', 'true')
+        setemail('')
+        setPass('')
+        setloggedIn(true)
+        navigate('/home');
+      }
+      catch (error) {
+      console.error(error);
+      navigate('/register');
+    }
 
   };
 
@@ -79,6 +102,8 @@ export default function SignIn() {
               name="email"
               autoComplete="email"
               autoFocus
+              value={email}
+              onChange={(event) => setemail(event.target.value)}
             />
             <TextField
               margin="normal"
@@ -89,6 +114,8 @@ export default function SignIn() {
               type="password"
               id="password"
               autoComplete="current-password"
+              value={password}
+              onChange={(event) => setPass(event.target.value)}
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}

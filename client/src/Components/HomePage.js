@@ -11,7 +11,7 @@ import axios from "axios"
 import { useEffect, useState } from "react";
 
 
-function HomePage() {
+function HomePage(props) {
 
   const [posts, setPosts] = useState([]);
 
@@ -20,15 +20,17 @@ function HomePage() {
       const res = await axios.get("/new");
       console.log(res.data);
       setPosts(res.data);
+      setloggedIn(localStorage.getItem('isLogged'))
     };
     fetchPosts();
   }, [posts.length]);
 
-  const [loggedIn, setloggedIn] = useState(true);
+  const [loggedIn, setloggedIn] = useState(false);
 
   const userLogin = (isLogin)=>{
     setloggedIn(isLogin);
   }
+  
 
   return (
     <>

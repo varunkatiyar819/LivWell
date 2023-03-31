@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import { useState } from 'react';
 import Avatar from '@mui/material/Avatar';
@@ -14,6 +15,7 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import logo from "../images/logo.png"
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 
 function Copyright(props) {
@@ -34,15 +36,47 @@ const theme = createTheme();
 export default function SignUp() {
 
   const navigate = useNavigate();
+  const [fname, setfname] = useState('');
+  const [lname, setlname] = useState('');
+  const [email, setemail] = useState('');
+  const [password, setPass] = useState('');
   
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async(event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    setfname(data.get('fName'))
+    setlname(data.get('lName'))
+    setemail(data.get('email'))
+    setPass(data.get('password'))
     console.log({
+      fname : data.get('fName'),
+      lname : data.get('lName'),
       email: data.get('email'),
       password: data.get('password'),
     });
+    try {
+      // Make a POST request to the /save-data route on your Node.js server
+      axios.defaults.withCredentials = true
+      await axios.post('http://localhost:5000/api/auth/register', {
+        fname,
+        lname,
+        email,
+        password,
+        withCredentials: true,
+        
+
+      });
+
+      setfname('')
+      setlname('')
+      setemail('')
+      setPass('')
+    }
+    catch (error) {
+      console.error(error);
+    }
+
     navigate('/login');
   };
 
@@ -69,11 +103,13 @@ export default function SignUp() {
               <Grid item xs={12} sm={6}>
                 <TextField
                   autoComplete="given-name"
-                  name="firstName"
+                  name="fName"
                   required
                   fullWidth
                   id="firstName"
                   label="First Name"
+                  value={fname}
+                  onChange={(event) => setfname(event.target.value)}
                   autoFocus
                 />
               </Grid>
@@ -83,8 +119,10 @@ export default function SignUp() {
                   fullWidth
                   id="lastName"
                   label="Last Name"
-                  name="lastName"
+                  name="lName"
                   autoComplete="family-name"
+                  value={lname}
+                  onChange={(event) => setlname(event.target.value)}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -95,6 +133,8 @@ export default function SignUp() {
                   label="Email Address"
                   name="email"
                   autoComplete="email"
+                  value={email}
+                  onChange={(event) => setemail(event.target.value)}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -106,6 +146,8 @@ export default function SignUp() {
                   type="password"
                   id="password"
                   autoComplete="new-password"
+                  value={password}
+                  onChange={(event) => setPass(event.target.value)}
                 />
               </Grid>
               <Grid item xs={12}>
